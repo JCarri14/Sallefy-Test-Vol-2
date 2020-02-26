@@ -1,5 +1,6 @@
 package salle.android.projects.service_test.controller.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,12 +10,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cloudinary.android.MediaManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,11 +46,16 @@ public class UploadActivity extends AppCompatActivity implements GenreCallback, 
     private ArrayList<Genre> mGenresObjs;
     private Uri mFileUri;
 
+    private Context mContext;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_song);
+        mContext = getApplicationContext();
+        initViews();
+        getData();
     }
 
     private void initViews() {
@@ -187,6 +195,17 @@ public class UploadActivity extends AppCompatActivity implements GenreCallback, 
 
     @Override
     public void onCreateTrack() {
-
+        StateDialog.getInstance(this).showStateDialog(true);
+        Thread watchDialog = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (StateDialog.getInstance(mContext).isDialogShown()){}
+                    finish();
+                } catch (Exception e) {
+                }
+            }
+        });
+        watchDialog.start();
     }
 }
