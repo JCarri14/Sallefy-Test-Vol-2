@@ -15,6 +15,7 @@ import salle.android.projects.service_test.controller.restapi.manager.UserManage
 import salle.android.projects.service_test.model.User;
 import salle.android.projects.service_test.model.UserToken;
 import salle.android.projects.service_test.utils.Constants;
+import salle.android.projects.service_test.utils.PreferenceUtils;
 import salle.android.projects.service_test.utils.Session;
 
 public class LoginActivity extends AppCompatActivity implements UserCallback {
@@ -29,6 +30,7 @@ public class LoginActivity extends AppCompatActivity implements UserCallback {
         super.onCreate(savedInstanceSate);
         setContentView(R.layout.activity_login);
         initViews();
+        checkForSavedData();
     }
 
     private void initViews () {
@@ -47,9 +49,21 @@ public class LoginActivity extends AppCompatActivity implements UserCallback {
         });
     }
 
+    private void checkForSavedData() {
+        if (checkExistingPreferences()) {
+            etLogin.setText(PreferenceUtils.getUser(this));
+            etPassword.setText(PreferenceUtils.getPassword(this));
+        }
+    }
+
     private void doLogin(String username, String userpassword) {
         UserManager.getInstance(getApplicationContext())
                 .loginAttempt(username, userpassword, LoginActivity.this);
+    }
+
+    private boolean checkExistingPreferences () {
+        return PreferenceUtils.getUser(this) != null
+                && PreferenceUtils.getPassword(this) != null;
     }
 
 
@@ -57,10 +71,9 @@ public class LoginActivity extends AppCompatActivity implements UserCallback {
     public void onLoginSuccess(UserToken userToken) {
         Session.getInstance(getApplicationContext())
                 .setUserToken(userToken);
-
-        Intent intent= new Intent();
-        setResult(Constants.NETWORK.LOGIN_OK,intent);
-        finish();
+        PreferenceUtils.saveUser(this, etLogin.getText().toString());
+        PreferenceUtils.savePassword(this, etPassword.getText().toString());
+        UserManager.getInstance(this).getUserData(etLogin.getText().toString(), this);
     }
 
     @Override
@@ -81,7 +94,11 @@ public class LoginActivity extends AppCompatActivity implements UserCallback {
 
     @Override
     public void onUserInfoReceived(User userData) {
-
+        Session.getInstance(getApplicationContext())
+                .setUser(userData);
+        Intent intent= new Intent();
+        setResult(Constants.NETWORK.LOGIN_OK,intent);
+        finish();
     }
 
     @Override
