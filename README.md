@@ -5,4 +5,5 @@ Los temas tratados son:
 * startActivityForResult(...)
 * Interaction with RecyclerView
 * Dialogs
+* SharedPreferences
 * Cloudinary (Upload song)
