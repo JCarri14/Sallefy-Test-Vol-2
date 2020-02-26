@@ -12,3 +12,4 @@
 /captures
 .externalNativeBuild
 .cxx
+app/src/main/java/salle/android/projects/service_test/utils/CloudinaryConfigs.java
