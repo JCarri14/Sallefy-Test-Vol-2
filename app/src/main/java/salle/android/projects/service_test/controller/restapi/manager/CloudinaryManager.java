@@ -16,6 +16,7 @@ import java.util.Map;
 import salle.android.projects.service_test.controller.restapi.callback.TrackCallback;
 import salle.android.projects.service_test.model.Genre;
 import salle.android.projects.service_test.model.Track;
+import salle.android.projects.service_test.model.User;
 import salle.android.projects.service_test.utils.CloudinaryConfigs;
 import salle.android.projects.service_test.utils.Session;
 
@@ -69,8 +70,8 @@ public class CloudinaryManager extends AppCompatActivity {
             Track track = new Track();
             track.setId(null);
             track.setName(mFileName);
-            track.setUser(Session.getInstance(mContext).getUser());
-            track.setUserLogin(Session.getInstance(mContext).getUser().getLogin());
+            //track.setUser(Session.getInstance(mContext).getUser());
+            //track.setUserLogin(Session.getInstance(mContext).getUser().getLogin());
             track.setUrl((String) resultData.get("url"));
             ArrayList<Genre> genres = new ArrayList<>();
             genres.add(mGenre);

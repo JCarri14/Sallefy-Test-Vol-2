@@ -91,6 +91,7 @@ public class Track implements Serializable {
     }
 
     public void setUserLogin(String userLogin) {
+        user = new User();
         user.setLogin(userLogin);
     }
 
