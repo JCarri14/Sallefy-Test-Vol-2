@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -47,29 +48,46 @@ public class StaticPlaybackActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Log.d("Static: ", "Enter onCreate " + this.hashCode());
         setContentView(R.layout.activity_music_playback_2);
         initViews();
 
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Static: ", "Enter onStart " + this.hashCode());
+
+
+        mPlayer.prepareAsync(); // might take long! (for buffering, etc)
+
+    }
+
     private void initViews() {
         mVisualizer = findViewById(R.id.circleVisualizer);
 
-        mPlayer = new MediaPlayer();
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mSeekBar.setMax(mPlayer.getDuration());
+        try {
+            mPlayer = new MediaPlayer();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mPlayer.setDataSource(url);
+            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mSeekBar.setMax(mPlayer.getDuration());
 
-                int audioSessionId = mPlayer.getAudioSessionId();
-                if (audioSessionId != -1)
-                    mVisualizer.setAudioSessionId(audioSessionId);
-            }
-        });
+                    int audioSessionId = mPlayer.getAudioSessionId();
+                    if (audioSessionId != -1)
+                        mVisualizer.setAudioSessionId(audioSessionId);
+                }
+            });
+            mHandler = new Handler();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        mHandler = new Handler();
+        /*
         Thread connection = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -80,7 +98,7 @@ public class StaticPlaybackActivity extends Activity {
                     Toast.makeText(StaticPlaybackActivity.this,"Error, couldn't play the music\n" + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
-        });
+        });*/
 
         tvAuthor = findViewById(R.id.music_artist_2);
         tvTitle = findViewById(R.id.music_title_2);
@@ -133,7 +151,6 @@ public class StaticPlaybackActivity extends Activity {
             }
         });
 
-        connection.start();
     }
 
     public void updateSeekBar() {
@@ -153,12 +170,35 @@ public class StaticPlaybackActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d("Static: ", "Enter onPause " + this.hashCode());
+        mPlayer.pause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("Static:", "Enter onResume " + this.hashCode());
+
+        if (mPlayer != null && !mPlayer.isPlaying()) {
+            mPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("Static: ", "Enter onStop " + this.hashCode());
+        if (mPlayer != null)
+            mPlayer.stop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d("Static: ", "Enter onDestroy " + this.hashCode() );
         if (mVisualizer != null)
             mVisualizer.release();
+
     }
 }
